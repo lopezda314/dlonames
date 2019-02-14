@@ -68,7 +68,7 @@
           if (!currentPlayer) {
             isFromDirectLink = true;
             currentPlayer = prompt('Enter a username!');
-            while (guardAgainstDuplicates.has(currentPlayer) || currentPlayer == '') {
+            while (guardAgainstDuplicates.has(currentPlayer) || !currentPlayer) {
               currentPlayer = prompt('That name is already taken, enter another one.');
             }
             refreshPlayers(currentPlayer);
