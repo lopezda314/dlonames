@@ -2,7 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     {{ JSGlue.include() }}
-    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     <title>Codenames!</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
@@ -61,7 +61,7 @@
       var guardAgainstDuplicates = new Set({{players|tojson}});
       const teams = ['blue', 'red'];
       let currentPlayer = '{{current_player}}';
-      var socket = io('http://' + document.domain + ':' + location.port, { transports: ["websocket"] });
+      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
       socket.on('connect', function() {
           // we emit a connected message to let know the client that we are connected.
           let isFromDirectLink = false;
