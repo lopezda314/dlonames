@@ -2,11 +2,11 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
     <title>Codenames!</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
     <script type="text/javascript">
-      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
+      var socket = io('http://' + document.domain + ':' + location.port, { transports: ["websocket"] });
       socket.on('display_new_word', (response) => {
         if (!isEventForThisGame(response['room'])) {
           return;
@@ -58,6 +58,7 @@
       const redCorrects = new Set();
 
       $( document ).ready( () => {
+        notifyLobbyClients();
         $('#redTeam').html(Array.from(redTeam).toString().replace(/,/g, ', '));   
         $('#blueTeam').html(Array.from(blueTeam).toString().replace(/,/g, ', '));   
         $('#redCodeMaster').html(redCodeMaster);   
@@ -97,6 +98,20 @@
           repopulateGuesses();
         }
       });
+
+      // This function exists because users are sometimes trapped in the lobby if their websocket was disconnected when the server
+      // notified clients to navigate to the game.
+      function notifyLobbyClients() {
+        setInterval(() => {
+          socket.emit('start_game', {
+          'redCodeMaster': redCodeMaster,
+          'blueCodeMaster': blueCodeMaster,
+          'redTeam': Array.from(redTeam),
+          'blueTeam': Array.from(blueTeam),
+          'room': '{{gameId}}',
+        });
+        }, /* milliSeconds */ 5000);
+      }
 
       function getYourTeam() {
         if (blueTeam.has(currentPlayer) || isBlueCodeMaster()) {
@@ -287,6 +302,10 @@
           isSwap = true;
           curTeam = currentTurn == 'Red' ? 'Blue' : 'Red';
         }
+        // Check if this is the player's last guess.
+        if (parseInt($('#curGuesses').text()) == 1) {
+          isSwap = true;
+        }
         if (currentTurn == 'Red') {
           if (redTeam.has(currentPlayer) && parseInt($('#curGuesses').text()) != 0) {
             socket.emit('new_guess', {'index': index, 'guess': $('button[name='+index+']').val(), 'room': '{{gameId}}', 'isSwap': isSwap, 'team': curTeam});
@@ -351,7 +370,7 @@
             $('button[name='+index+']').addClass('deathReveal');
           }
         }
-        $('#curGuesses').html(parseInt($('#curGuesses').text()) - 1)
+        $('#curGuesses').html(parseInt($('#curGuesses').text()) - 1);
         return;
       }
 

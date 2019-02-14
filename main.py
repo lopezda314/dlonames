@@ -7,7 +7,7 @@ from flask_jsglue import JSGlue
 from flask_socketio import SocketIO, send, emit
 from random import randint
 
-path = 'words.txt'
+path = '/static/words.txt'
 filepath = pkg_resources.resource_filename(__name__, path)
 with open(filepath) as f:
     all_words = f.readlines()
@@ -207,6 +207,7 @@ def handle_new_guess_event(json):
 
 @socketio.on('switch_teams')
 def handle_switch_teams_event(json):
+    global games
     if ('team' in games[json['room']]):
         games[json['room']]['team'] = 'Blue' if games[json['room']]['team'] == 'Red' else 'Red'
     else:
