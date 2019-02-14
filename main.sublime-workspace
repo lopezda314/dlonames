@@ -1,0 +1,310 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"redC",
+				"redCorrects"
+			],
+			[
+				"blu",
+				"blueCorrects"
+			],
+			[
+				"blues",
+				"blueCorrects"
+			],
+			[
+				"is",
+				"isRedCodeMaster"
+			],
+			[
+				"current",
+				"currentTurn"
+			],
+			[
+				"codeM",
+				"codeMasterHasSuppliedWord"
+			],
+			[
+				"number",
+				"numberForNewWord"
+			],
+			[
+				"blue",
+				"blueCodeMaster"
+			],
+			[
+				"get",
+				"getIndicesForBoard"
+			],
+			[
+				"redCode",
+				"redCodeMaster"
+			],
+			[
+				"getBlue",
+				"getBlueCodeMaster"
+			],
+			[
+				"getRed",
+				"getRedCodeMaster"
+			],
+			[
+				"getBlu",
+				"getBlueCodeMaster"
+			],
+			[
+				"BA",
+				"BASE_DIR\tstatement"
+			],
+			[
+				"Bas",
+				"BASE_DIR\tstatement"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 87.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control:",
+				"Package Control: Install Package"
+			],
+			[
+				"babel",
+				"Set Syntax: JavaScript (Babel)"
+			],
+			[
+				"Package Control: Instal",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: Install Packa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 485.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/David/codenames_server/templates/game.html",
+		"/Users/David/codenames_server/websockets.py",
+		"/Users/David/codenames_server/static/words.txt",
+		"/Users/David/codenames_server/static/style.css",
+		"/Users/David/codenames_server/templates/lobby.html",
+		"/Users/David/codenames_server/app.yaml",
+		"/Users/David/codenames_server/requirements.txt",
+		"/Users/David/codenames_server/appengine_config.py",
+		"/Users/David/codenames_server/env/lib/python3.5/site-packages/google/api/control_pb2.py",
+		"/Users/David/codenames_server/static/app.js",
+		"/Users/David/codenames/node_modules/react-scripts/config/jest/babelTransform.js",
+		"/Users/David/InterestingNews/templates.yaml",
+		"/Users/David/InterestingNews/memory_game.py",
+		"/Users/David/healthFairDocRecs/screener/models.py",
+		"/Users/David/healthFairDocRecs/screener/views.py",
+		"/Users/David/healthFairDocRecs/health_fair/urls.py",
+		"/Users/David/healthFairDocRecs/LICENSE.md",
+		"/Users/David/healthFairDocRecs/static/css/style.css",
+		"/Users/David/healthFairDocRecs/static/js/script.js",
+		"/Users/David/healthFairDocRecs/static/js/dashboard.js",
+		"/Users/David/healthFairDocRecs/health_fair/settings/base.py",
+		"/Users/David/healthFairDocRecs/health_fair/settings/import random.py",
+		"/Users/David/picLogin/registration/forms.py",
+		"/Users/David/picLogin/registration/profile.py",
+		"/Users/David/picLogin/registration/templates/registration/registration_base.html",
+		"/Users/David/picLogin/registration/templates/registration/registration_form.html",
+		"/Users/David/picLogin/picLogin/views.py",
+		"/Users/David/picLogin/registration/templates/registration/login.html",
+		"/Users/David/picLogin/registration/backends/simple/views.py",
+		"/Users/David/picLogin/registration/views.py",
+		"/Users/David/picLogin/registration/backends/simple/profile.py",
+		"/Users/David/picLogin/registration/admin.py",
+		"/Users/David/picLogin/registration/models.py",
+		"/Users/David/picLogin/registration/templates/registration/registration_complete.html",
+		"/Users/David/picLogin/picLogin/urls.py",
+		"/Users/David/picLogin/registration/signals.py",
+		"/Users/David/picLogin/registration/templates/registration/base.html",
+		"/Users/David/picLogin/registration/templates/registration/password_reset_email.html",
+		"/Users/David/picLogin/registration/static/css/base.css",
+		"/Users/David/picLogin/registration/auth_urls.py",
+		"/Users/David/picLogin/registration/backends/simple/urls.py",
+		"/Users/David/picLogin/picLogin/settings.py",
+		"/Users/David/picLogin/registration/backends/default/urls.py",
+		"/Users/David/Documents/oneAway",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/picturesMakeBetterPasswords/urls.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/homePage/views.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/homePage/urls.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/login/views.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/login/forms.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/picturesMakeBetterPasswords/settings.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/home.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/success.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/picturesMakeBetterPasswords/home/views.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/logged_out.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/register.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/picturesMakeBetterPasswords/home/urls.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/manage.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/base.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/templates/login.html",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/picturesMakeBetterPasswords/home/__init__.py",
+		"/Users/David/hashFun/picturesMakeBetterPasswords/registration/login.html"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 36.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "main.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"reactjs babel",
+				"node_modules/react-scripts/config/jest/babelTransform.js"
+			],
+			[
+				"",
+				"src/App.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 137.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

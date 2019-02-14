@@ -1,0 +1,171 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    {{ JSGlue.include() }}
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <title>Codenames!</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script type="text/javascript">
+      window.onload = function() {
+        socket.emit('join', {
+          'room' : '{{gameId}}'
+        });
+        $('#shareUrl').html(window.location.href.split('?')[0] + '?gameId=' + '{{gameId}}');
+      }
+      function startNewGame() {
+        if (parseInt(playerCount.innerText, 10) < 4) {
+          alert('not enough players!');
+          return;
+        }
+        if (!getBlueCodeMaster() || !getRedCodeMaster() || getBlueCodeMaster() == getRedCodeMaster()) {
+          alert('codemasters must be chosen and must be different people!');
+          return;
+        }
+        if (new Set([...getRedTeam()].filter(x => new Set(getBlueTeam()).has(x))).size > 0) {
+          alert('each player can be on only one team!');
+          return;
+        }
+        if (getBlueTeam().length + getRedTeam().length != parseInt(playerCount.innerText, 10)) {
+          alert('each player must be on a team!');
+          return;
+        }
+        socket.emit('start_game', {
+          'redCodeMaster': getRedCodeMaster(),
+          'blueCodeMaster': getBlueCodeMaster(),
+          'redTeam': Array.from(getRedTeam()),
+          'blueTeam': Array.from(getBlueTeam()),
+          'room': '{{gameId}}',
+        });
+      }
+
+      function getBlueCodeMaster() {
+        return $("input:radio[name='blueMaster']:checked").val();
+      }
+
+      function getRedCodeMaster() {
+        return $("input:radio[name='redMaster']:checked").val();
+      }
+
+      function getBlueTeam() {
+        return $("input:checkbox[name='blueTeam']:checked").map(function() {
+          return this.value;
+        }).get();
+      } 
+
+      function getRedTeam() {
+        return $("input:checkbox[name='redTeam']:checked").map(function() {
+          return this.value;
+        }).get();
+      }
+      var guardAgainstDuplicates = new Set({{players|tojson}});
+      const teams = ['blue', 'red'];
+      let currentPlayer = '{{current_player}}';
+      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
+      socket.on('connect', function() {
+          // we emit a connected message to let know the client that we are connected.
+          let isFromDirectLink = false;
+          if (!currentPlayer) {
+            isFromDirectLink = true;
+            currentPlayer = prompt('Enter a username!');
+            while (guardAgainstDuplicates.has(currentPlayer) || currentPlayer == '') {
+              currentPlayer = prompt('That name is already taken, enter another one.');
+            }
+            refreshPlayers(currentPlayer);
+            $('#curPlayer').html(currentPlayer);
+          }
+          socket.emit('client_connected', {data: currentPlayer, 'isFromDirectLink': isFromDirectLink,
+          'room': '{{gameId}}' });
+          history.replaceState({}, 'Lobby for ' + '{{gameId}}', '/lobby?gameId=' + '{{gameId}}' + '&player=' + currentPlayer);
+      });
+      socket.on('game_started', function(data) {
+        if (!isEventForThisGame(data['room'])) {
+          return;
+        }
+        window.location.href = Flask.url_for('game', {
+          redCodeMaster: data['redCodeMaster'],
+          blueCodeMaster: data['blueCodeMaster'],
+          redTeam: data['redTeam'],
+          blueTeam: data['blueTeam'],
+          gameId: '{{gameId}}',
+          currentPlayer: currentPlayer
+        });
+      });
+      function isEventForThisGame(room) {
+          return room == '{{gameId}}';
+        }
+      socket.on('new_client', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        if (response['data'] == currentPlayer || guardAgainstDuplicates.has(response['data'])) {
+          return;
+        }
+        refreshPlayers(response['data'])
+      });
+
+      function refreshPlayers(player) {
+        guardAgainstDuplicates.add(player);
+        $("#playerCount").html(parseInt($('#playerCount').text()) + 1);
+        for (let i = 0; i < teams.length; i++) {
+          $('<input />', {
+            type : 'radio',
+            class: 'radioButton',
+            id: player,
+            value: player,
+            name: teams[i] +'Master',
+          }).appendTo($('#'+ teams[i] +'CodemasterOptions')).after('<label for='+player+'>'+player+'</label>');
+          $('<input />', {
+            type : 'checkbox',
+            class: 'checkButton',
+            id: player,
+            value: player,
+            name: teams[i] + 'Team',
+          }).appendTo($('#'+ teams[i] +'Team')).after('<label for='+player+'>'+player+'</label>');
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="pagetitle">
+        <h1 id="players">Hi <span id="curPlayer">{{current_player}}</span></h1>
+        <h4>Share this url for friends to join: <span id="shareUrl"></span></h2>
+        <h2>Game ID is: {{gameId}}</h2>
+        <h3>Number of Player(s): <span id="playerCount">{{players|count if players|count else 1}}</span></h3>
+      </div>
+      <div id="main">
+          <label for="blue">Blue Codemaster: </label>
+            <div id="blueCodemasterOptions">
+              {% for player in players %}
+                  <input class="radioButton" type="radio" id="{{player}}" name="blueMaster" value="{{player}}"><label for="{{player}}">{{player}}</label></input>
+              {% endfor %}
+            </div>
+          <br />
+          <label for="red">Red Codemaster: </label>
+            <div id="redCodemasterOptions">
+              {% for player in players %}
+                 <input class="radioButton" type="radio" id="{{player}}" name="redMaster" value="{{player}}"><label for="{{player}}">{{player}}</label></input>
+              {% endfor %}
+            </div>
+          <br />
+          <div id="teams" class="teambox">
+            Select Teams
+            <div id="blueTeam">
+              Blue Team: <br />
+              {% for player in players %}
+                  <input class="checkButton" type="checkbox" id="{{player}}" name="blueTeam" value="{{player}}"><label for="{{player}}">{{player}}</label></input>
+              {% endfor %}
+            </div>
+            <div id="redTeam">
+              Red Team: <br />
+              {% for player in players %}
+                  <input class="checkButton" type="checkbox" id="{{player}}" name="redTeam" value="{{player}}"><label for="{{player}}">{{player}}</label></input>
+              {% endfor %}
+            </div>
+            <br />
+          <button class="actionButton" type="submit" onclick="startNewGame()">Done Selecting</button>
+      </div>
+    </div>
+  </body>
+</html>

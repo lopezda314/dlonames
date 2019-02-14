@@ -1,0 +1,79 @@
+body {
+    overflow-y: hidden;
+}
+
+input {
+    border: 1px solid black;
+}
+
+.wordButtonRow {
+    display: flex;
+    justify-content: space-between;
+}
+
+.wordButton {
+    border: 1px solid grey;
+    border-radius: 8px;
+    height: 60px;
+    hyphens: auto;
+    margin: 10px 0; 
+    width: 20%;
+    word-break: break-word;
+}
+
+.blueReveal {
+    background-color: blue;
+    color: white;
+    opacity: .5;
+}
+
+.deathReveal {
+    background-color: black;
+    color: white;
+    opacity: .5;
+}
+
+.nameField {
+    margin-bottom: 8px;
+}
+
+.neutralReveal {
+    background-color: rgb(180,180,180);
+}
+
+.redReveal {
+    background-color: red;
+    opacity: .5;
+}
+
+.revealEveryone {
+    opacity: 1;
+}
+
+.actionButton {
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.checkButton {
+    height: 20px;
+    width: 20px;
+}
+
+.radioButton {
+    height: 20px;
+    width: 20px;
+}
+
+.teamIndicatorBox {
+    position: absolute;
+    border: 1px solid black;
+    border-radius: 50%;
+    right: 10px;
+    top: 10px;
+    width: 100px;
+    height: 80px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+}

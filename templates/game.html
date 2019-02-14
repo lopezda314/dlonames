@@ -1,0 +1,408 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <title>Codenames!</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script type="text/javascript">
+      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
+      socket.on('display_new_word', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        $('#curWord').html(response['newWord']);
+        $('#curGuesses').html(response['numberForNewWord']);
+        isWaitingForCodeMaster = false;
+      });
+
+      socket.on('display_results_of_new_guess', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        handleNewWordClick(response['index']);
+      });
+
+      socket.on('should_switch_teams', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        isWaitingForCodeMaster = true;
+        switchTurns();
+      });
+
+      if ('{{first}}' == 'Blue') {
+        var blueIndices = {{indices}}.slice(0, 9);
+        var redIndices = {{indices}}.slice(9, 17);
+      } else {
+        var redIndices = {{indices}}.slice(0, 9);
+        var blueIndices = {{indices}}.slice(9, 17);
+      }
+      const currentPlayer = '{{currentPlayer}}'.replace(/%20/g, ' ');
+      var currentTurn = '{{team}}' ? '{{team}}' : '{{first}}';
+      const deathIndex = {{indices}}[17]
+      const redTeam = new Set('{{redTeam}}'.split(',').map((name) => {
+          return name.replace(/%20/g, ' ');
+      }));
+      const blueTeam = new Set('{{blueTeam}}'.split(',').map((name) => {
+          return name.replace(/%20/g, ' ');
+      }));
+      const redCodeMaster = '{{redCodeMaster}}'.replace(/%20/g, ' ');
+      const blueCodeMaster = '{{blueCodeMaster}}'.replace(/%20/g, ' ');
+      var isWaitingForCodeMaster = currentTurn == 'Red' ? redTeam.has(currentPlayer) && !'{{word}}' : blueTeam.has(currentPlayer) && !'{{word}}';
+      if ('{{word}}' == 'Waiting! (not a clue :))') {
+        isWaitingForCodeMaster = true;
+      }
+      var codeMasterHasSuppliedWord = false;
+      const blueCorrects = new Set();
+      const redCorrects = new Set();
+
+      $( document ).ready( () => {
+        $('#redTeam').html(Array.from(redTeam).toString().replace(/,/g, ', '));   
+        $('#blueTeam').html(Array.from(blueTeam).toString().replace(/,/g, ', '));   
+        $('#redCodeMaster').html(redCodeMaster);   
+        $('#blueCodeMaster').html(blueCodeMaster);
+        $('#teamIndicator').html(getYourTeam()).css('color', getYourTeam() == 'BLUE' ? 'blue' : 'red');   
+
+        if (isBlueCodeMaster() || isRedCodeMaster()) {
+          showCodeMasterBoard();
+          if (!'{{team}}') {
+            newTurn();
+          } else {
+            if (parseInt('{{numGuesses}}') == 0) {
+              maybeDisplayForms();
+            }
+          }
+        }
+        if (currentTurn == 'Blue') {
+          $('#curTeam').css('color', 'blue');
+        } else {
+          $('#curTeam').css('color', 'red');
+        } 
+        // Reload state for users who had to refresh
+        if ('{{word}}') {
+          if (!(currentTurn == 'Blue' && isBlueCodeMaster()) && !(currentTurn == 'Red' && isRedCodeMaster())) {  
+            $('#curWord').html('{{word}}');
+          }
+        }
+        if ('{{numGuesses}}') {
+          if (!(currentTurn == 'Blue' && isBlueCodeMaster()) && !(currentTurn == 'Red' && isRedCodeMaster())) {  
+            $('#curGuesses').html(parseInt('{{numGuesses}}'));   
+          }
+        }
+        if ('{{team}}') {
+          $('#curTeam').html('{{team}}' + ' team\'s turn.');  
+        }
+        if ('{{guesses}}') {
+          repopulateGuesses();
+        }
+      });
+
+      function getYourTeam() {
+        if (blueTeam.has(currentPlayer) || isBlueCodeMaster()) {
+          return 'BLUE';
+        }
+        if (redTeam.has(currentPlayer) || isRedCodeMaster()) {
+          return 'RED';
+        }
+      }
+
+      function maybeDisplayForms() {
+        if (isBlueCodeMaster() && currentTurn == 'Blue') {
+          codeMasterHasSuppliedWord = false;
+          $('<input />', {
+            class: 'codeMasterInput',
+            type : 'text',
+            id: 'hint',
+            name: 'hint',
+          }).appendTo($('#curWord'));
+          $('<input />', {
+            class: 'codeMasterInput',
+            type : 'text',
+            id: 'guess',
+            name: 'guess',
+          }).appendTo($('#curGuesses'));
+          if($('#submitWord').length == 0) {
+            $('<button>', {
+              id: 'submitWord',
+              class: 'actionButton',
+              onclick: 'onSubmitWordsClicked()',
+              html: 'Ready',
+            }).appendTo($('#gameInfo'));
+          }
+        }
+        if (isRedCodeMaster() && currentTurn == 'Red') {
+          codeMasterHasSuppliedWord = false;
+          $('<input />', {
+            class: 'codeMasterInput',
+            type : 'text',
+            id: 'hint',
+            name: 'hint',
+          }).appendTo($('#curWord'));
+          $('<input />', {
+            class: 'codeMasterInput',
+            type : 'text',
+            id: 'guess',
+            name: 'guess',
+          }).appendTo($('#curGuesses'));
+          if($('#submitWord').length == 0) {
+            $('<button>', {
+              id: 'submitWord',
+              style: 'border: 1px solid black',
+              onclick: 'onSubmitWordsClicked()',
+              html: 'Ready',
+            }).appendTo($('#gameInfo'));
+          }
+        }
+      }
+
+      function repopulateGuesses() {
+        const blues = new Set(blueIndices);
+        const reds = new Set(redIndices);
+        '{{guesses}}'.replace(/&#39;/gi, '').replace('[', '').replace(']', '').split(',').forEach(previousGuess => {
+          if (blues.has(parseInt($('button[value='+previousGuess+']').attr('name')))) {
+            blueCorrects.add(previousGuess);
+            $('button[value='+previousGuess+']').addClass('blueReveal');
+            $('button[value='+previousGuess+']').addClass('revealEveryone');
+          }
+          else if (reds.has(parseInt($('button[value='+previousGuess+']').attr('name')))) {
+            redCorrects.add(previousGuess);
+            $('button[value='+previousGuess+']').addClass('redReveal');
+            $('button[value='+previousGuess+']').addClass('revealEveryone');
+          }
+          else {
+            $('button[value='+previousGuess+']').addClass('neutralReveal');
+            $('button[value='+previousGuess+']').addClass('revealEveryone');
+          }
+        });
+      }
+
+      function isEventForThisGame(room) {
+        return room == '{{gameId}}';
+      }
+
+      function skipCurrentTurn() {
+        // Not this player's turn to skip.
+        if (currentTurn == 'Red' && blueTeam.has(currentPlayer)) {
+          return;
+        }
+        // Not player's turn to skip.
+        if (currentTurn == 'Blue' && redTeam.has(currentPlayer)) {
+          return;
+        }
+        // Codemasters cant skip.
+        if (isRedCodeMaster() || isBlueCodeMaster()) {
+          return;
+        }
+        // Rude to skip before codemaster's given a clue.
+        if (isWaitingForCodeMaster) {
+          return;
+        }  
+        socket.emit('switch_teams', {'room': '{{gameId}}'});
+      }
+
+      function newTurn() {
+        $('#curWord').empty();
+        $('#curGuesses').empty();
+        $('#curTeam').html(currentTurn + ' team\'s turn.');
+        $('#submitWord').remove();
+        if (currentTurn == 'Blue') {
+          $('#curTeam').css('color', 'blue');
+        } else {
+          $('#curTeam').css('color', 'red');
+        }
+        if (!'{{numGuesses}}' || ('{{numGuesses}}' && parseInt('{{numGuesses}}') == 0)) {
+          maybeDisplayForms();
+        }
+        maybeUpdateCodemasterWordAndGuesses();
+      }
+
+      function maybeUpdateCodemasterWordAndGuesses() {
+        if (!isRedCodeMaster() || !isBlueCodeMaster()) {
+          return;
+        }
+        if ('{{word}}' && !$('#curWord').html()) {
+          $('#curWord').html('{{word}}');
+        }
+        if ('{{numGuesses}}' && !$('#curGuesses').html()) {
+          $('#curGuesses').html('{{numGuesses}}');
+        }
+      }
+
+      function onSubmitWordsClicked() {
+        if (codeMasterHasSuppliedWord) {
+          return;
+        }
+        const inputGuess = $("input:text[name='hint']").val().toLowerCase();
+        if (!inputGuess) {
+          alert('you have to give a clue!');
+          return;
+        }
+        if (inputGuess.split(' ').length > 1) {
+          alert('clue can only be one word long!');
+          return;
+        }
+        if (new Set({{words|tojson}}).has(inputGuess.toLowerCase())) {
+          alert('clue cant be one of the words!');
+          return;
+        }
+        const inputNumber = parseInt($("input:text[name='guess']").val());
+        if (!inputNumber) {
+          alert('You have to supply a number between 1 and 9!');
+          return;
+        }
+        if(inputNumber > 9 || inputNumber < 1) {
+          alert('number has to be between 1 and 9');
+          return;
+        }
+        // We add one to the input to account for the extra guess.
+        broadcastNewWord(inputGuess, inputNumber + 1);
+        $('#submitWord').remove();
+        codeMasterHasSuppliedWord = true;
+      }
+
+      function broadcastNewWord(newWord, numberForNewWord) {
+        socket.emit('new_word', {'newWord': newWord,
+          'numberForNewWord': numberForNewWord, 'room': '{{gameId}}'
+        });
+      }
+
+      function handleWordClick(index) {
+        if (isBlueCodeMaster() || isRedCodeMaster() || isWaitingForCodeMaster) {
+          return;
+        }
+        let isSwap = false;
+        let curTeam = currentTurn;
+        const blues = new Set(blueIndices);
+        const reds = new Set(redIndices);
+        if (reds.has(index) && currentTurn == 'Blue') {
+          isSwap = true;
+          curTeam = 'Red'
+        }
+        if (blues.has(index) && currentTurn == 'Red') {
+          isSwap = true;
+          curTeam = 'Blue'
+        }
+        if (!reds.has(index) && !blues.has(index)) {
+          isSwap = true;
+          curTeam = currentTurn == 'Red' ? 'Blue' : 'Red';
+        }
+        if (currentTurn == 'Red') {
+          if (redTeam.has(currentPlayer) && parseInt($('#curGuesses').text()) != 0) {
+            socket.emit('new_guess', {'index': index, 'guess': $('button[name='+index+']').val(), 'room': '{{gameId}}', 'isSwap': isSwap, 'team': curTeam});
+          }
+        }
+        if (currentTurn == 'Blue') {
+          if (blueTeam.has(currentPlayer) && parseInt($('#curGuesses').text()) != 0) {
+            socket.emit('new_guess', {'index': index, 'guess':$('button[name='+index+']').val(), 'room': '{{gameId}}', 'isSwap': isSwap, 'team': curTeam});
+          }
+        }
+      }
+
+      function showCodeMasterBoard() {
+        blueIndices.forEach((index) => {
+          $('button[name='+index+']').addClass('blueReveal');
+        });
+        redIndices.forEach((index) => {
+          $('button[name='+index+']').addClass('redReveal');
+        });
+        $('button[name='+deathIndex+']').addClass('deathReveal');
+      }
+
+      function isBlueCodeMaster() {
+        return currentPlayer == blueCodeMaster;
+      }
+
+      function isRedCodeMaster() {
+        return currentPlayer == redCodeMaster;
+      }
+
+      function switchTurns() {
+        currentTurn = currentTurn == 'Blue' ? 'Red' : 'Blue';
+        newTurn();
+      }
+
+      function handleNewWordClick(index) {
+        $('button[name='+index+']').addClass('revealEveryone');
+        if (index == deathIndex) {
+          deathWin();
+        }
+        const blues = new Set(blueIndices);
+        if (blues.has(index)) {
+          if (!isBlueCodeMaster() && !isRedCodeMaster()) {
+            $('button[name='+index+']').addClass('blueReveal');
+          }
+          blueCorrects.add($('button[name='+index+']').val())
+          checkIfBluesWin();
+        }
+        const reds = new Set(redIndices);
+        if (reds.has(index)) {
+          if (!isBlueCodeMaster() && !isRedCodeMaster()) {
+            $('button[name='+index+']').addClass('redReveal');
+          }
+          redCorrects.add($('button[name='+index+']').val());
+          checkIfRedsWin();
+        }
+        $('button[name='+index+']').prop('disabled', true);
+        if (!$('button[name='+index+']').hasClass('blueReveal') && !$('button[name='+index+']').hasClass('redReveal')) {
+          if (index != deathIndex) {
+            $('button[name='+index+']').addClass('neutralReveal');
+          } else {
+            $('button[name='+index+']').addClass('deathReveal');
+          }
+        }
+        $('#curGuesses').html(parseInt($('#curGuesses').text()) - 1)
+        return;
+      }
+
+      function deathWin() {
+        currentTurn == 'Red' ? alert('Death card, Blue wins') : alert('Death card, Red wins');
+      }
+
+      function checkIfBluesWin() {
+        if('{{first}}' == 'Blue' && blueCorrects.size == 9) {
+          alert('Blues Win!');
+          return;
+        }
+        if ('{{first}}' != 'Blue' && blueCorrects.size == 8) {
+          alert('Blues Win!');
+          return;
+        }  
+      }
+
+      function checkIfRedsWin() {
+        if('{{first}}' == 'Red' && redCorrects.size == 9) {
+          alert('Reds Win!');
+          return;
+        }
+        if ('{{first}}' != 'Red' && redCorrects.size == 8) {
+          alert('Reds Win!');
+          return;
+        }  
+      }
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="gameInfo">
+        <div class="teamIndicatorBox"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
+        <div style="font-size:1.17em" id="curTeam">{{first}} team's turn.</div>
+        <div>Blue Codemaster: <span id="blueCodeMaster">{{blueCodeMaster}}</span></div>
+        <div>Blue Team: <span id="blueTeam">{{blueTeam}}</span></div>
+        <div>Red Codemaster: <span id="redCodeMaster">{{redCodeMaster}}</span></div>
+        <div>Red Team: <span id="redTeam">{{redTeam}}</span></div>
+        <div id="nextHint"> CURRENT WORD: <span id="curWord"></span></div>
+        <div id="nextGuesses"> # GUESSES: <span id="curGuesses"></span></div>
+      </div>
+      <div class="wordButtonContainer">
+        {% for word in words %}
+
+          {% if loop.index % 5 == 1 %}<div class="wordButtonRow"> {% endif %}
+          <button class="wordButton" value="{{word}}" onclick="handleWordClick({{loop.index}})" name="{{loop.index}}">{{word}}</button>
+          {% if loop.index % 5 == 0 %}</div> {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div><button class="actionButton" onClick="skipCurrentTurn()">Skip our turn</button></div>
+  </body>
+</html>

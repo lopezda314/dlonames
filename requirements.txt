@@ -1,0 +1,8 @@
+Flask-API==1.0
+Flask-JSGlue
+Werkzeug>=0.12.0
+flask-cors
+flask-socketio
+setuptools
+eventlet
+gunicorn==19.9.0
