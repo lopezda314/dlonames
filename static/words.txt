@@ -1,5 +1,4 @@
 Acne
-Acre
 Advertise
 Aircraft
 Aisle
@@ -27,7 +26,6 @@ Baguette
 Bald
 Balloon
 Banana
-Banister
 Baseball
 Baseboards
 Basketball
@@ -58,7 +56,6 @@ Boat
 Bobsled
 Body
 Bomb
-Bonnet
 Book
 Booth
 Bowtie
@@ -342,9 +339,7 @@ Lizard
 Log
 Loiterer
 Lollipop
-Loveseat
 Loyalty
-Lunch
 Lunchbox
 Lyrics
 Machine
@@ -595,7 +590,6 @@ Tennis
 Thief
 Think
 Throne
-Through
 Thunder
 Tide
 Tiger
