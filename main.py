@@ -194,12 +194,6 @@ def handle_new_guess_event(json):
         games[json['room']]['guesses'].append(json['guess'])
     emit('display_results_of_new_guess', json, broadcast=True)
     if json['isSwap']:
-        if 'word' in games[json['room']]:
-            # Changing this means you have to change some client side code (isWaitingForCodemaster)
-            games[json['room']]['word'] = 'Waiting! (not a clue :))'
-            games[json['room']]['numGuesses'] = 0
-        else:
-            games[json['room']]['numGuesses'] = games[json['room']]['numGuesses'] - 1
         handle_switch_teams_event(json)
     else:
         games[json['room']]['numGuesses'] = games[json['room']]['numGuesses'] - 1        
@@ -208,6 +202,10 @@ def handle_new_guess_event(json):
 @socketio.on('switch_teams')
 def handle_switch_teams_event(json):
     global games
+    if 'word' in games[json['room']]:
+        # Changing this means you have to change some client side code (isWaitingForCodemaster)
+        games[json['room']]['word'] = 'Waiting! (not a clue :))'
+        games[json['room']]['numGuesses'] = 0
     if ('team' in games[json['room']]):
         games[json['room']]['team'] = 'Blue' if games[json['room']]['team'] == 'Red' else 'Red'
     else:
