@@ -18,6 +18,51 @@
         });
         $('#shareUrl').html(window.location.href.split('?')[0] + '?gameId=' + '{{gameId}}');
       }
+      var guardAgainstDuplicates = new Set({{players|tojson}});
+      const teams = ['blue', 'red'];
+      let currentPlayer = '{{current_player}}';
+      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
+      socket.on('connect', function() {
+          let isFromDirectLink = false;
+          if (!currentPlayer) {
+            isFromDirectLink = true;
+            currentPlayer = prompt('Enter a username!');
+            while (guardAgainstDuplicates.has(currentPlayer) || !currentPlayer) {
+              currentPlayer = prompt('That name is already taken, enter another one.');
+            }
+            refreshPlayers(currentPlayer);
+            $('#curPlayer').html(currentPlayer);
+          }
+          // We emit a connected message to let know the client that we are connected.
+          socket.emit('client_connected', {data: currentPlayer, 'isFromDirectLink': isFromDirectLink,
+          'room': '{{gameId}}' });
+          // We append the player to query params so if they refresh, the server knows they're already registered
+          // for this game ID.
+          history.replaceState({}, 'Lobby for ' + '{{gameId}}', '/lobby?gameId=' + '{{gameId}}' + '&player=' + currentPlayer);
+      });
+      socket.on('game_started', function(data) {
+        if (!isEventForThisGame(data['room'])) {
+          return;
+        }
+        window.location.href = Flask.url_for('game', {
+          redCodeMaster: data['redCodeMaster'],
+          blueCodeMaster: data['blueCodeMaster'],
+          redTeam: data['redTeam'],
+          blueTeam: data['blueTeam'],
+          gameId: '{{gameId}}',
+          currentPlayer: currentPlayer
+        });
+      });
+      socket.on('new_client', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        if (response['data'] == currentPlayer || guardAgainstDuplicates.has(response['data'])) {
+          return;
+        }
+        refreshPlayers(response['data'])
+      });
+
       function startNewGame() {
         if (!isValidToPlay()) {
             return;
@@ -75,71 +120,30 @@
           return this.value;
         }).get();
       }
-      var guardAgainstDuplicates = new Set({{players|tojson}});
-      const teams = ['blue', 'red'];
-      let currentPlayer = '{{current_player}}';
-      var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
-      socket.on('connect', function() {
-          // we emit a connected message to let know the client that we are connected.
-          let isFromDirectLink = false;
-          if (!currentPlayer) {
-            isFromDirectLink = true;
-            currentPlayer = prompt('Enter a username!');
-            while (guardAgainstDuplicates.has(currentPlayer) || !currentPlayer) {
-              currentPlayer = prompt('That name is already taken, enter another one.');
+        // Update lobby HTML to reflect {@param player} joining. 
+        function refreshPlayers(player) {
+            guardAgainstDuplicates.add(player);
+            $("#playerCount").html(parseInt($('#playerCount').text()) + 1);
+            for (let i = 0; i < teams.length; i++) {
+            $('<input />', {
+                type : 'radio',
+                class: 'radioButton',
+                id: player,
+                value: player,
+                name: teams[i] +'Master',
+            }).appendTo($('#'+ teams[i] +'CodemasterOptions')).after('<label for='+player+'>'+player+'</label>');
+            $('<input />', {
+                type : 'checkbox',
+                class: 'checkButton',
+                id: player,
+                value: player,
+                name: teams[i] + 'Team',
+            }).appendTo($('#'+ teams[i] +'Team')).after('<label for='+player+'>'+player+'</label>');
             }
-            refreshPlayers(currentPlayer);
-            $('#curPlayer').html(currentPlayer);
-          }
-          socket.emit('client_connected', {data: currentPlayer, 'isFromDirectLink': isFromDirectLink,
-          'room': '{{gameId}}' });
-          history.replaceState({}, 'Lobby for ' + '{{gameId}}', '/lobby?gameId=' + '{{gameId}}' + '&player=' + currentPlayer);
-      });
-      socket.on('game_started', function(data) {
-        if (!isEventForThisGame(data['room'])) {
-          return;
         }
-        window.location.href = Flask.url_for('game', {
-          redCodeMaster: data['redCodeMaster'],
-          blueCodeMaster: data['blueCodeMaster'],
-          redTeam: data['redTeam'],
-          blueTeam: data['blueTeam'],
-          gameId: '{{gameId}}',
-          currentPlayer: currentPlayer
-        });
-      });
-      function isEventForThisGame(room) {
-          return room == '{{gameId}}';
-        }
-      socket.on('new_client', (response) => {
-        if (!isEventForThisGame(response['room'])) {
-          return;
-        }
-        if (response['data'] == currentPlayer || guardAgainstDuplicates.has(response['data'])) {
-          return;
-        }
-        refreshPlayers(response['data'])
-      });
 
-      function refreshPlayers(player) {
-        guardAgainstDuplicates.add(player);
-        $("#playerCount").html(parseInt($('#playerCount').text()) + 1);
-        for (let i = 0; i < teams.length; i++) {
-          $('<input />', {
-            type : 'radio',
-            class: 'radioButton',
-            id: player,
-            value: player,
-            name: teams[i] +'Master',
-          }).appendTo($('#'+ teams[i] +'CodemasterOptions')).after('<label for='+player+'>'+player+'</label>');
-          $('<input />', {
-            type : 'checkbox',
-            class: 'checkButton',
-            id: player,
-            value: player,
-            name: teams[i] + 'Team',
-          }).appendTo($('#'+ teams[i] +'Team')).after('<label for='+player+'>'+player+'</label>');
-        }
+      function isEventForThisGame(room) {
+        return room == '{{gameId}}';
       }
     </script>
   </head>
