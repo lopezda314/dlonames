@@ -19,25 +19,8 @@
         $('#shareUrl').html(window.location.href.split('?')[0] + '?gameId=' + '{{gameId}}');
       }
       function startNewGame() {
-        if (parseInt(playerCount.innerText, 10) < 4) {
-          alert('not enough players!');
-          return;
-        }
-        if (!getBlueCodeMaster() || !getRedCodeMaster() || getBlueCodeMaster() == getRedCodeMaster()) {
-          alert('codemasters must be chosen and must be different people!');
-          return;
-        }
-        if (new Set([...getRedTeam()].filter(x => new Set(getBlueTeam()).has(x))).size > 0) {
-          alert('each player can be on only one team!');
-          return;
-        }
-        if (getBlueTeam().length + getRedTeam().length != parseInt(playerCount.innerText, 10)) {
-          alert('each player must be on a team!');
-          return;
-        }
-        if (new Set(getBlueTeam()).has(getRedCodeMaster()) || new Set(getRedTeam()).has(getBlueCodeMaster())) {
-           alert('blue codemaster has to be on blue team and red codemaster has to be on red team.'); 
-           return;
+        if (!isValidToPlay()) {
+            return;
         }
         socket.emit('start_game', {
           'redCodeMaster': getRedCodeMaster(),
@@ -46,6 +29,31 @@
           'blueTeam': Array.from(getBlueTeam()),
           'room': '{{gameId}}',
         });
+      }
+
+      function isValidToPlay() {
+        let isValidToPlay = true;
+        if (parseInt(playerCount.innerText, 10) < 4) {
+          alert('not enough players!');
+          isValidToPlay = false;
+        }
+        if (!getBlueCodeMaster() || !getRedCodeMaster() || getBlueCodeMaster() == getRedCodeMaster()) {
+          alert('codemasters must be chosen and must be different people!');
+          isValidToPlay = false;
+        }
+        if (new Set([...getRedTeam()].filter(x => new Set(getBlueTeam()).has(x))).size > 0) {
+          alert('each player can be on only one team!');
+          isValidToPlay = false;
+        }
+        if (getBlueTeam().length + getRedTeam().length != parseInt(playerCount.innerText, 10)) {
+          alert('each player must be on a team!');
+          isValidToPlay = false;
+        }
+        if (new Set(getBlueTeam()).has(getRedCodeMaster()) || new Set(getRedTeam()).has(getBlueCodeMaster())) {
+           alert('blue codemaster has to be on blue team and red codemaster has to be on red team.'); 
+          isValidToPlay = false;
+        }
+        return isValidToPlay;
       }
 
       function getBlueCodeMaster() {
