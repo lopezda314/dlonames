@@ -35,6 +35,9 @@
           alert('each player must be on a team!');
           return;
         }
+        if (new Set(getBlueTeam()).has(getRedCodeMaster()) || new Set(getRedTeam()).has(getBlueCodeMaster())) {
+           alert('blue codemaster has to be on blue team and red codemaster has to be on red team.'); 
+        }
         socket.emit('start_game', {
           'redCodeMaster': getRedCodeMaster(),
           'blueCodeMaster': getBlueCodeMaster(),
@@ -135,7 +138,7 @@
     <div id="container">
       <div class="pagetitle">
         <h1 id="players">Hi <span id="curPlayer">{{current_player}}</span></h1>
-        <h4>Share this url for friends to join: <span id="shareUrl"></span></h2>
+        <h4>USE THIS TO SHARE (dont use address bar): <span id="shareUrl"></span></h2>
         <h2>Game ID is: {{gameId}}</h2>
         <h3>Number of Player(s): <span id="playerCount">{{players|count if players|count else 1}}</span></h3>
       </div>
