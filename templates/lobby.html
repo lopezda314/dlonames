@@ -37,6 +37,7 @@
         }
         if (new Set(getBlueTeam()).has(getRedCodeMaster()) || new Set(getRedTeam()).has(getBlueCodeMaster())) {
            alert('blue codemaster has to be on blue team and red codemaster has to be on red team.'); 
+           return;
         }
         socket.emit('start_game', {
           'redCodeMaster': getRedCodeMaster(),
