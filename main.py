@@ -125,12 +125,8 @@ def game():
                 indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
                 redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                 redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
-<<<<<<< HEAD
                 numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
                 previousWords=games[query_params['gameId']]['previousWords'])
-=======
-                numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'])
->>>>>>> 608d6f1facf011bbb1804cd392239123e23fadc1
     else:
         return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
             indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
