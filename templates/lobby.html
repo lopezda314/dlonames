@@ -26,9 +26,9 @@
           let isFromDirectLink = false;
           if (!currentPlayer) {
             isFromDirectLink = true;
-            currentPlayer = prompt('Enter a username!');
+            currentPlayer = prompt('Enter a username!').replace(/ /g, '');
             while (guardAgainstDuplicates.has(currentPlayer) || !currentPlayer) {
-              currentPlayer = prompt('That name is already taken, enter another one.');
+              currentPlayer = prompt('That name is already taken, enter another one.').replace(/ /g, '');
             }
             refreshPlayers(currentPlayer);
             $('#curPlayer').html(currentPlayer);
