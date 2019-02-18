@@ -121,12 +121,20 @@ def game():
                             numGuesses=games[query_params['gameId']]['numGuesses'], guesses=games[query_params['gameId']]['guesses'],
                             initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'], previousWords=games[query_params['gameId']]['previousWords'])                
         else:
-            return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-                indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-                redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
-                redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
-                numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
-                previousWords=games[query_params['gameId']]['previousWords'])
+            if 'team' in games[query_params['gameId']]:
+                return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
+                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
+                    redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                    redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
+                    numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
+                    previousWords=games[query_params['gameId']]['previousWords'], team=games[query_params['gameId']]['team'])
+            else:
+                return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
+                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
+                    redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                    redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
+                    numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
+                    previousWords=games[query_params['gameId']]['previousWords'])
     else:
         return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
             indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
