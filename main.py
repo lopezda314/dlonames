@@ -112,20 +112,21 @@ def game():
                     redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                     redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                     numGuesses=games[query_params['gameId']]['numGuesses'], guesses=games[query_params['gameId']]['guesses'], team=games[query_params['gameId']]['team'],
-                    initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'])
+                    initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'], previousWords=games[query_params['gameId']]['previousWords'])
             else:
                 return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
                             indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
                             redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                             redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                             numGuesses=games[query_params['gameId']]['numGuesses'], guesses=games[query_params['gameId']]['guesses'],
-                            initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'])                
+                            initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'], previousWords=games[query_params['gameId']]['previousWords'])                
         else:
             return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
                 indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
                 redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                 redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
-                numGuesses=games[query_params['gameId']]['numGuesses'], )
+                numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
+                previousWords=games[query_params['gameId']]['previousWords'])
     else:
         return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
             indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
@@ -183,6 +184,10 @@ def handle_start_game_event(json):
 @socketio.on('new_word')
 def handle_new_word_event(json):
     global games
+    if 'previousWords' not in games[json['room']]:
+        games[json['room']]['previousWords'] = { json['newWord'] : json['numberForNewWord']-1 }
+    else:
+        games[json['room']]['previousWords'][json['newWord']] = json['numberForNewWord']-1
     games[json['room']]['word'] = json['newWord']
     games[json['room']]['numGuesses'] = json['numberForNewWord']
     games[json['room']]['initialNumGuesses'] = json['numberForNewWord']-1
