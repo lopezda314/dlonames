@@ -84,3 +84,22 @@ input {
     display: flex;
     align-items: center;
 }
+
+.teamBoxesContainer {
+    display: flex;
+    padding-bottom: 12px;
+}
+
+.teamBox {
+    border: 1px solid #B6B6B4;
+    border-radius: 8px;
+    text-align: center;
+    padding: 8px;
+    width: 50%;
+}
+
+.currTeamTurn {
+    font-size:1.17em;
+    padding-bottom: 12px;
+    text-align:center;
+}

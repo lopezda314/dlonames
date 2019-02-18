@@ -409,12 +409,20 @@
   <body>
     <div id="container">
       <div id="gameInfo">
-        <div class="teamIndicatorBox"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
-        <div style="font-size:1.17em" id="curTeam">{{first}} team's turn.</div>
-        <div>Blue Codemaster: <span id="blueCodeMaster">{{blueCodeMaster}}</span></div>
-        <div>Blue Team: <span id="blueTeam">{{blueTeam}}</span></div>
-        <div>Red Codemaster: <span id="redCodeMaster">{{redCodeMaster}}</span></div>
-        <div>Red Team: <span id="redTeam">{{redTeam}}</span></div>
+        <div class="teamBoxesContainer">
+            <div class="teamBox" style="margin-right:8px">
+              <div style="color:#2B60DE;padding-bottom:4px;">Blue Team</div>
+              <div><span id="blueTeam">{{blueTeam}}</span></div>
+              <div>Codemaster: <span id="blueCodeMaster">{{blueCodeMaster}}</span></div>
+            </div>
+            <div class="teamBox">
+              <div style="color:#E55451;padding-bottom:4px;">Red Team</div>
+              <div><span id="redTeam">{{redTeam}}</span></div>
+              <div>Codemaster: <span id="redCodeMaster">{{redCodeMaster}}</span></div>
+            </div>
+        </div>
+        <div style="text-align:center"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
+        <div class="currTeamTurn" id="curTeam">{{first}} team's turn.</div>
         <div id="nextHint"> CURRENT WORD: <span id="curWord"></span></div>
         <div id="nextGuesses"> # GUESSES: <span id="curGuesses"></span></div>
       </div>
