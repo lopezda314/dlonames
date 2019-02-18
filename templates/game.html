@@ -18,6 +18,7 @@
         }
         $('#curWord').html(response['newWord']);
         $('#curGuesses').html(response['numberForNewWord']);
+        $('#initialGuesses').html(response['numberForNewWord']-1);
         isWaitingForCodeMaster = false;
       });
 
@@ -93,7 +94,8 @@
         }
         if ('{{numGuesses}}') {
           if (!(currentTurn == 'Blue' && isBlueCodeMaster()) && !(currentTurn == 'Red' && isRedCodeMaster())) {  
-            $('#curGuesses').html(parseInt('{{numGuesses}}'));   
+            $('#curGuesses').html(parseInt('{{numGuesses}}'));
+            $('#initialGuesses').html(parseInt('{{initialNumGuesses}}'));   
           }
         }
         if ('{{team}}') {
@@ -141,7 +143,7 @@
             type : 'text',
             id: 'guess',
             name: 'guess',
-          }).appendTo($('#curGuesses'));
+          }).appendTo($('#initialGuesses'));
           if($('#submitWord').length == 0) {
             $('<button>', {
               id: 'submitWord',
@@ -164,7 +166,7 @@
             type : 'text',
             id: 'guess',
             name: 'guess',
-          }).appendTo($('#curGuesses'));
+          }).appendTo($('#initialGuesses'));
           if($('#submitWord').length == 0) {
             $('<button>', {
               id: 'submitWord',
@@ -224,6 +226,7 @@
       function newTurn() {
         $('#curWord').empty();
         $('#curGuesses').empty();
+        $('#initialGuesses').empty();
         $('#curTeam').html(currentTurn + ' team\'s turn.');
         $('#submitWord').remove();
         if (currentTurn == 'Blue') {
@@ -423,8 +426,8 @@
         </div>
         <div style="text-align:center"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
         <div class="currTeamTurn" id="curTeam">{{first}} team's turn.</div>
-        <div id="nextHint"> CURRENT WORD: <span id="curWord"></span></div>
-        <div id="nextGuesses"> # GUESSES: <span id="curGuesses"></span></div>
+        <div> CLUE: <span id="curWord"></span> for <span id="initialGuesses"></span></div>
+        <div> # GUESSES LEFT: <span id="curGuesses"></span></div>
       </div>
       <div class="wordButtonContainer">
         {% for word in words %}
