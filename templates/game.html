@@ -19,6 +19,7 @@
         $('#curWord').html(response['newWord']);
         $('#curGuesses').html(response['numberForNewWord']);
         $('#initialGuesses').html(response['numberForNewWord']-1);
+        $('#for').css('display', 'unset');
         isWaitingForCodeMaster = false;
       });
 
@@ -98,6 +99,9 @@
             $('#initialGuesses').html(parseInt('{{initialNumGuesses}}'));   
           }
         }
+        if ('{{word}}' && '{{numGuesses}}') {
+            $('#for').css('display', 'unset');
+        }
         if ('{{team}}') {
           $('#curTeam').html('{{team}}' + ' team\'s turn.');  
         }
@@ -138,6 +142,7 @@
             id: 'hint',
             name: 'hint',
           }).appendTo($('#curWord'));
+          $('#for').css('display', 'unset');
           $('<input />', {
             class: 'codeMasterInput',
             type : 'text',
@@ -161,6 +166,7 @@
             id: 'hint',
             name: 'hint',
           }).appendTo($('#curWord'));
+          $('#for').css('display', 'unset');
           $('<input />', {
             class: 'codeMasterInput',
             type : 'text',
@@ -227,6 +233,7 @@
         $('#curWord').empty();
         $('#curGuesses').empty();
         $('#initialGuesses').empty();
+        $('#for').css('display', 'none');
         $('#curTeam').html(currentTurn + ' team\'s turn.');
         $('#submitWord').remove();
         if (currentTurn == 'Blue') {
@@ -426,7 +433,7 @@
         </div>
         <div style="text-align:center"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
         <div class="currTeamTurn" id="curTeam">{{first}} team's turn.</div>
-        <div> CLUE: <span id="curWord"></span> for <span id="initialGuesses"></span></div>
+        <div> CLUE: <span id="curWord"></span><span id="for" style="display:none;"> for </span><span id="initialGuesses"></span></div>
         <div> # GUESSES LEFT: <span id="curGuesses"></span></div>
       </div>
       <div class="wordButtonContainer">
