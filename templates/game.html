@@ -63,6 +63,7 @@
       var codeMasterHasSuppliedWord = false;
       const blueCorrects = new Set();
       const redCorrects = new Set();
+      const neutrals = new Set();
       // We define this globally to stop guesses after the game is over. 
       var isGameOver = false;
 
@@ -201,6 +202,9 @@
             $('button[value='+previousGuess+']').addClass('revealEveryone');
           }
           else {
+            // This will add the death class as a neutral but if you're refreshing after the death card,
+            // the game is already over.
+            neutrals.add(previousGuess);
             $('button[value='+previousGuess+']').addClass('neutralReveal');
             $('button[value='+previousGuess+']').addClass('revealEveryone');
           }
@@ -303,6 +307,9 @@
         if (isBlueCodeMaster() || isRedCodeMaster() || isWaitingForCodeMaster) {
           return;
         }
+        if (blueCorrects.has(index) || redCorrects.has(index) || neutrals.has(index)) {
+          return;
+        }
         let isSwap = false;
         let curTeam = currentTurn;
         const blues = new Set(blueIndices);
@@ -362,6 +369,7 @@
         $('button[name='+index+']').addClass('revealEveryone');
         isGameOver = maybeDeathWin(index);
         const blues = new Set(blueIndices);
+        const reds = new Set(redIndices);
         if (blues.has(index)) {
           if (!isBlueCodeMaster() && !isRedCodeMaster()) {
             $('button[name='+index+']').addClass('blueReveal');
@@ -369,13 +377,17 @@
           blueCorrects.add($('button[name='+index+']').val())
           isGameOver = maybeBluesWin();
         }
-        const reds = new Set(redIndices);
-        if (reds.has(index)) {
+        else if (reds.has(index)) {
           if (!isBlueCodeMaster() && !isRedCodeMaster()) {
             $('button[name='+index+']').addClass('redReveal');
           }
           redCorrects.add($('button[name='+index+']').val());
           isGameOver = maybeRedsWin();
+        }
+        else {
+          if (!isGameOver) {
+            neutrals.add($('button[name='+index+']').val());
+          }
         }
         $('button[name='+index+']').prop('disabled', true);
         if (!$('button[name='+index+']').hasClass('blueReveal') && !$('button[name='+index+']').hasClass('redReveal')) {
