@@ -63,6 +63,8 @@
       var codeMasterHasSuppliedWord = false;
       const blueCorrects = new Set();
       const redCorrects = new Set();
+      // We define this globally to stop guesses after the game is over. 
+      var isGameOver = false;
 
       $( document ).ready( () => {
         notifyLobbyClients();
@@ -358,16 +360,14 @@
 
       function handleNewWordClick(index) {
         $('button[name='+index+']').addClass('revealEveryone');
-        if (index == deathIndex) {
-          deathWin();
-        }
+        isGameOver = maybeDeathWin(index);
         const blues = new Set(blueIndices);
         if (blues.has(index)) {
           if (!isBlueCodeMaster() && !isRedCodeMaster()) {
             $('button[name='+index+']').addClass('blueReveal');
           }
           blueCorrects.add($('button[name='+index+']').val())
-          checkIfBluesWin();
+          isGameOver = maybeBluesWin();
         }
         const reds = new Set(redIndices);
         if (reds.has(index)) {
@@ -375,7 +375,7 @@
             $('button[name='+index+']').addClass('redReveal');
           }
           redCorrects.add($('button[name='+index+']').val());
-          checkIfRedsWin();
+          isGameOver = maybeRedsWin();
         }
         $('button[name='+index+']').prop('disabled', true);
         if (!$('button[name='+index+']').hasClass('blueReveal') && !$('button[name='+index+']').hasClass('redReveal')) {
@@ -386,33 +386,42 @@
           }
         }
         $('#curGuesses').html(parseInt($('#curGuesses').text()) - 1);
+        if (isGameOver) {
+          showCodeMasterBoard();
+        }
         return;
       }
 
-      function deathWin() {
-        currentTurn == 'Red' ? alert('Death card, Blue wins') : alert('Death card, Red wins');
+      function maybeDeathWin(index) {
+        if (index == deathIndex) {
+          currentTurn == 'Red' ? alert('Death card, Blue wins') : alert('Death card, Red wins');
+          return true;
+        }
+        return false;
       }
 
-      function checkIfBluesWin() {
+      function maybeBluesWin() {
         if('{{first}}' == 'Blue' && blueCorrects.size == 9) {
           alert('Blues Win!');
-          return;
+          return true;
         }
         if ('{{first}}' != 'Blue' && blueCorrects.size == 8) {
           alert('Blues Win!');
-          return;
-        }  
+          return true;
+        }
+        return false;  
       }
 
-      function checkIfRedsWin() {
+      function maybeRedsWin() {
         if('{{first}}' == 'Red' && redCorrects.size == 9) {
           alert('Reds Win!');
-          return;
+          return true;
         }
         if ('{{first}}' != 'Red' && redCorrects.size == 8) {
           alert('Reds Win!');
-          return;
-        }  
+          return true;
+        }
+        return false;  
       }
     </script>
   </head>
