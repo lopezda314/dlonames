@@ -151,7 +151,7 @@ def getWordsForBoard():
     while len(game_words) < 25:
         maybeNextIndex = randint(0, NUMBER_WORDS - 1)
         if all_words[maybeNextIndex] not in used_words:
-            game_words.append(all_words[maybeNextIndex].lower())
+            game_words.append(all_words[maybeNextIndex].upper())
             used_words.add(all_words[maybeNextIndex])
     return game_words
 

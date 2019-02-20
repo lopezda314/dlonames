@@ -265,7 +265,7 @@
         if (codeMasterHasSuppliedWord) {
           return;
         }
-        const inputGuess = $("input:text[name='hint']").val().toLowerCase();
+        const inputGuess = $("input:text[name='hint']").val();
         if (!inputGuess) {
           alert('you have to give a clue!');
           return;
@@ -443,7 +443,7 @@
         <div style="text-align:center"><div>You're on the <span id="teamIndicator"></span> team!</div></div>
         <div class="currTeamTurn" id="curTeam">{{first}} team's turn.</div>
         <div> CLUE: <span id="curWord"></span><span id="for" style="display:none;"> for </span><span id="initialGuesses"></span></div>
-        <div> # GUESSES LEFT: <span id="curGuesses"></span></div>
+        <div> # GUESSES REMAINING: <span id="curGuesses"></span></div>
       </div>
       <div class="wordButtonContainer">
         {% for word in words %}
