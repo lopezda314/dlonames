@@ -38,6 +38,15 @@
         switchTurns();
       });
 
+      socket.on('display_midway_player', (response) => {
+        if (!isEventForThisGame(response['room'])) {
+          return;
+        }
+        response['teamAddedTo'] == 'blue' ? blueTeam.add(response['midwayPlayer']) : redTeam.add(response['midwayPlayer']);
+        $('#redTeam').html(Array.from(redTeam).toString().replace(/,/g, ', ')); 
+        $('#blueTeam').html(Array.from(blueTeam).toString().replace(/,/g, ', '));
+      });
+
       if ('{{first}}' == 'Blue') {
         var blueIndices = {{indices}}.slice(0, 9);
         var redIndices = {{indices}}.slice(9, 17);
@@ -45,15 +54,18 @@
         var redIndices = {{indices}}.slice(0, 9);
         var blueIndices = {{indices}}.slice(9, 17);
       }
-      const currentPlayer = '{{currentPlayer}}'.replace(/%20/g, ' ');
-      var currentTurn = '{{team}}' ? '{{team}}' : '{{first}}';
       const deathIndex = {{indices}}[17]
+      var currentPlayer = '{{currentPlayer}}'.replace(/%20/g, ' ');
+      var currentTurn = '{{team}}' ? '{{team}}' : '{{first}}';
       const redTeam = new Set('{{redTeam}}'.split(',').map((name) => {
           return name.replace(/%20/g, ' ');
       }));
       const blueTeam = new Set('{{blueTeam}}'.split(',').map((name) => {
           return name.replace(/%20/g, ' ');
       }));
+      if (!blueTeam.has(currentPlayer) && !redTeam.has(currentPlayer)) {
+        repopulatePlayerOrAddToTeam();
+      }
       const redCodeMaster = '{{redCodeMaster}}'.replace(/%20/g, ' ');
       const blueCodeMaster = '{{blueCodeMaster}}'.replace(/%20/g, ' ');
       var isWaitingForCodeMaster = currentTurn == 'Red' ? redTeam.has(currentPlayer) && !'{{word}}' : blueTeam.has(currentPlayer) && !'{{word}}';
@@ -127,6 +139,28 @@
         }, /* milliSeconds */ 5000);
       }
 
+      // This function exists for users who reclick the initial share link after they have already joined the game
+      // or for players who join midway through a game.
+      function repopulatePlayerOrAddToTeam() {
+        // Handle weird cases where the user has a null name (i.e. they clicked escape in the lobby and got redirected before the prompt came back up).
+        if (!currentPlayer) {
+          while (!currentPlayer) {
+            currentPlayer = 
+              prompt('You don\'t have a username for some reason! Enter one now and use the same one if you already had one when starting game');
+            if (blueTeam.has(currentPlayer) || redTeam.has(currentPlayer)) {
+              return;
+            }
+          }
+        }
+        let teamAddedTo = 'red';
+        if (redTeam.size > blueTeam.size) {
+          teamAddedTo = 'blue';
+          blueTeam.add(currentPlayer)
+        } else {
+          redTeam.add(currentPlayer);
+        }
+        socket.emit('midway_player', {'room': '{{gameId}}', 'midwayPlayer' : currentPlayer, 'teamAddedTo' : teamAddedTo});
+      }
       function getYourTeam() {
         if (blueTeam.has(currentPlayer) || isBlueCodeMaster()) {
           return 'BLUE';

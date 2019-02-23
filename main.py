@@ -35,9 +35,6 @@ def redirect_to_home():
 @app.route('/lobby/', methods=['GET', 'POST'])
 def lobby():
     global games
-    if len(games) > 50:
-        # Only allow MAX_GAMES games before resetting to avoid memory leak.
-        games = {}
     query_params = {}
     query_params_kv = bytes.decode(request.query_string).split('&')
     for query_param in query_params_kv:
@@ -50,6 +47,9 @@ def lobby():
     if len(query_params) > 0:
         maybe_gameId = query_params['gameId']
     if 'gameId' not in request.form and not maybe_gameId:
+        if len(games) > 50:
+            # Only allow MAX_GAMES games before resetting to avoid memory leak.
+            games = {}
         gameId = createNewgameId()
         games[gameId] = {}
         if 'name' in request.form:
@@ -79,6 +79,12 @@ def lobby():
         gameId = maybe_gameId
         if gameId not in games:
             abort(404)
+        if 'blueTeam' in games[gameId]:
+            return render_template('lobby.html',
+                 current_player='',
+                 gameId=gameId,
+                 players=games[gameId]['players'],
+                 isGameInProgress='true')
         return render_template('lobby.html',
                  current_player='',
                  gameId=gameId,
@@ -103,42 +109,46 @@ def game():
     if 'words' not in games[query_params['gameId']]:
         games[query_params['gameId']]['words'] = getWordsForBoard()
     if 'indices' not in games[query_params['gameId']]:
-        games[query_params['gameId']]['indices'] = getIndicesForBoard()    
+        games[query_params['gameId']]['indices'] = getIndicesForBoard()
+    if 'redTeam' not in games[query_params['gameId']]:
+        games[query_params['gameId']]['redTeam'] = query_params['redTeam']
+    if 'blueTeam' not in games[query_params['gameId']]:
+        games[query_params['gameId']]['blueTeam'] = query_params['blueTeam']
     if 'word' in games[query_params['gameId']]:
         if 'guesses' in games[query_params['gameId']]:
             if 'team' in games[query_params['gameId']]:
                 return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-                    redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=games[query_params['gameId']]['blueTeam'],
+                    redTeam=games[query_params['gameId']]['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                     redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                     numGuesses=games[query_params['gameId']]['numGuesses'], guesses=games[query_params['gameId']]['guesses'], team=games[query_params['gameId']]['team'],
                     initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'], previousWords=games[query_params['gameId']]['previousWords'])
             else:
                 return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-                            indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-                            redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                            indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=games[query_params['gameId']]['blueTeam'],
+                            redTeam=games[query_params['gameId']]['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                             redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                             numGuesses=games[query_params['gameId']]['numGuesses'], guesses=games[query_params['gameId']]['guesses'],
                             initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'], previousWords=games[query_params['gameId']]['previousWords'])                
         else:
             if 'team' in games[query_params['gameId']]:
                 return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-                    redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=games[query_params['gameId']]['blueTeam'],
+                    redTeam=games[query_params['gameId']]['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                     redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                     numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
                     previousWords=games[query_params['gameId']]['previousWords'], team=games[query_params['gameId']]['team'])
             else:
                 return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-                    redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+                    indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=games[query_params['gameId']]['blueTeam'],
+                    redTeam=games[query_params['gameId']]['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
                     redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'], word=games[query_params['gameId']]['word'],
                     numGuesses=games[query_params['gameId']]['numGuesses'], initialNumGuesses=games[query_params['gameId']]['initialNumGuesses'],
                     previousWords=games[query_params['gameId']]['previousWords'])
     else:
         return render_template('game.html', gameId=query_params['gameId'], words=games[query_params['gameId']]['words'],
-            indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=query_params['blueTeam'],
-            redTeam=query_params['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
+            indices=games[query_params['gameId']]['indices'], first=games[query_params['gameId']]['first'], blueTeam=games[query_params['gameId']]['blueTeam'],
+            redTeam=games[query_params['gameId']]['redTeam'], blueCodeMaster=query_params['blueCodeMaster'],
             redCodeMaster=query_params['redCodeMaster'], currentPlayer=query_params['currentPlayer'])
 
 
@@ -228,3 +238,13 @@ def handle_switch_teams_event(json):
     else:
         games[json['room']]['team'] = 'Blue' if games[json['room']]['first'] == 'Red' else 'Red'
     emit('should_switch_teams', json, broadcast=True)
+
+@socketio.on('midway_player')
+def handle_midway_player_event(json):
+    global games
+    if json['room'] in games and 'blueTeam' in games[json['room']]:
+        if json['teamAddedTo'] == 'blue':
+            games[json['room']]['blueTeam'] = ','.join(games[json['room']]['blueTeam'].split(',') + [json['midwayPlayer']])
+        else:
+            games[json['room']]['redTeam'] = ','.join(games[json['room']]['redTeam'].split(',') + [json['midwayPlayer']])
+    emit('display_midway_player', json, broadcast=True)

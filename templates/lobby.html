@@ -21,13 +21,14 @@
       var guardAgainstDuplicates = new Set({{players|tojson}});
       const teams = ['blue', 'red'];
       let currentPlayer = '{{current_player}}';
+      const isGameInProgress = '{{isGameInProgress}}' ? !!'{isGameInProgress}' : false;
       var socket = io('https://' + document.domain + ':' + location.port, { transports: ["websocket"] });
       socket.on('connect', function() {
           let isFromDirectLink = false;
           if (!currentPlayer) {
             isFromDirectLink = true;
             currentPlayer = prompt('Enter a username!').replace(/ /g, '');
-            while (guardAgainstDuplicates.has(currentPlayer) || !currentPlayer) {
+            while ((!isGameInProgress && guardAgainstDuplicates.has(currentPlayer)) || !currentPlayer) {
               currentPlayer = prompt('That name is already taken, enter another one.').replace(/ /g, '');
             }
             refreshPlayers(currentPlayer);
